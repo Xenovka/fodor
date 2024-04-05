@@ -1,14 +1,19 @@
 import { StatusBar } from "expo-status-bar";
 import { useContext } from "react";
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, FlatList } from "react-native";
 import { useCart } from "../providers/CartProvider";
+import CartListItem from "../components/CartListItem";
 
 const CartScreen = () => {
     const { items } = useCart();
 
     return (
         <View>
-            <Text>Cart item length: {items.length}</Text>
+            <FlatList
+                data={items}
+                renderItem={({ item }) => <CartListItem cartItem={item} />}
+                contentContainerStyle={{ padding: 10, gap: 10 }}
+            />
 
             <StatusBar style={Platform.OS === "android" ? "light" : "auto"} />
         </View>
