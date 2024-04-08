@@ -1,3 +1,4 @@
+import { InsertTables } from "./../../types";
 import { supabase } from "@/src/lib/supabase";
 import { useAuth } from "@/src/providers/AuthProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -36,18 +37,32 @@ export const useMyOrderList = () => {
         }
     });
 };
-export const useInsertProduct = () => {
+
+export const useOrderDetails = (id: number) => {
+    return useQuery({
+        queryKey: ["orders", id],
+        queryFn: async () => {
+            const { data, error } = await supabase.from("orders").select("*").eq("id", id).single();
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        }
+    });
+};
+
+export const useInsertOrder = () => {
     const queryClient = useQueryClient();
+    const { session } = useAuth();
+    const userId = session?.user.id;
 
     return useMutation({
-        async mutationFn(data: any) {
+        async mutationFn(data: InsertTables<"orders">) {
             const { data: newProduct, error } = await supabase
-                .from("products")
-                .insert({
-                    name: data.name,
-                    image: data.image,
-                    price: data.price
-                })
+                .from("orders")
+                .insert({ ...data, user_id: userId })
+                .select()
                 .single();
 
             if (error) {

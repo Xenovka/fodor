@@ -14,7 +14,7 @@ export type Database = {
           created_at: string
           id: number
           order_id: number
-          product_id: number | null
+          product_id: number
           quantity: number
           size: string
         }
@@ -22,7 +22,7 @@ export type Database = {
           created_at?: string
           id?: number
           order_id: number
-          product_id?: number | null
+          product_id: number
           quantity?: number
           size?: string
         }
@@ -30,7 +30,7 @@ export type Database = {
           created_at?: string
           id?: number
           order_id?: number
-          product_id?: number | null
+          product_id?: number
           quantity?: number
           size?: string
         }
@@ -55,23 +55,23 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          status: string
-          total: number
-          user_id: string
+          status: string | null
+          total: number | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: number
-          status?: string
-          total?: number
-          user_id: string
+          status?: string | null
+          total?: number | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: number
-          status?: string
-          total?: number
-          user_id?: string
+          status?: string | null
+          total?: number | null
+          user_id?: string | null
         }
         Relationships: [
           {
