@@ -1,11 +1,11 @@
 import { View, Text, StyleSheet, TextInput, Image, Alert } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import Button from "@/src/components/Button";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Colors from "@/src/constants/Colors";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useInsertProduct } from "@/src/api/products";
+import { useInsertProduct, useProduct, useUpdateProduct } from "@/src/api/products";
 
 const CreateProductScreen = () => {
     const [name, setName] = useState("");
@@ -13,12 +13,23 @@ const CreateProductScreen = () => {
     const [errors, setErrors] = useState("");
     const [image, setImage] = useState<string | null>("");
 
-    const { id } = useLocalSearchParams();
-    const isUpdating = !!id;
+    const { id: idString } = useLocalSearchParams();
+    const id = parseFloat(typeof idString === "string" ? idString : idString?.[0]);
+    const isUpdating = !!idString;
 
     const { mutate: insertProduct } = useInsertProduct();
+    const { mutate: updateProduct } = useUpdateProduct();
+    const { data: updatingProduct } = useProduct(id);
 
     const router = useRouter();
+
+    useEffect(() => {
+        if (updatingProduct) {
+            setName(updatingProduct.name);
+            setPrice(updatingProduct.price.toString());
+            setImage(updatingProduct.image);
+        }
+    }, [updatingProduct]);
 
     const resetField = () => {
         setName("");
@@ -47,16 +58,29 @@ const CreateProductScreen = () => {
 
     const onSubmit = () => {
         if (isUpdating) {
-            onUpdateCreate();
+            onUpdate();
         } else {
             onCreate();
         }
     };
 
-    const onUpdateCreate = () => {
+    const onUpdate = () => {
         if (!validateInput()) return;
 
-        console.log("Update product");
+        updateProduct(
+            {
+                name,
+                price: parseFloat(price),
+                image,
+                id
+            },
+            {
+                onSuccess: () => {
+                    resetField();
+                    router.back();
+                }
+            }
+        );
     };
 
     const onCreate = () => {
