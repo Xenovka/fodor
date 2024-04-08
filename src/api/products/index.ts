@@ -97,7 +97,7 @@ export const useDeleteProduct = () => {
             }
         },
         async onSuccess() {
-            await queryClient.invalidateQueries({ queryKey: ["product"] });
+            await queryClient.invalidateQueries({ queryKey: ["products"] });
         }
     });
 };
