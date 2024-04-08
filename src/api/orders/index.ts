@@ -9,7 +9,11 @@ export const useAdminOrderList = ({ archived = false }) => {
     return useQuery({
         queryKey: ["orders", { archived }],
         queryFn: async () => {
-            const { data, error } = await supabase.from("orders").select("*").in("status", statuses);
+            const { data, error } = await supabase
+                .from("orders")
+                .select("*")
+                .in("status", statuses)
+                .order("created_at", { ascending: false });
             if (error) {
                 throw new Error(error.message);
             }
@@ -28,7 +32,11 @@ export const useMyOrderList = () => {
         queryFn: async () => {
             if (!id) return null;
 
-            const { data, error } = await supabase.from("orders").select("*").eq("user_id", id);
+            const { data, error } = await supabase
+                .from("orders")
+                .select("*")
+                .eq("user_id", id)
+                .order("created_at", { ascending: false });
             if (error) {
                 throw new Error(error.message);
             }
@@ -42,7 +50,11 @@ export const useOrderDetails = (id: number) => {
     return useQuery({
         queryKey: ["orders", id],
         queryFn: async () => {
-            const { data, error } = await supabase.from("orders").select("*").eq("id", id).single();
+            const { data, error } = await supabase
+                .from("orders")
+                .select("*, order_items(*, products(*))")
+                .eq("id", id)
+                .single();
             if (error) {
                 throw new Error(error.message);
             }
@@ -61,7 +73,7 @@ export const useInsertOrder = () => {
         async mutationFn(data: InsertTables<"orders">) {
             const { data: newProduct, error } = await supabase
                 .from("orders")
-                .insert({ ...data, user_id: userId })
+                .insert({ ...data, user_id: userId! })
                 .select()
                 .single();
 
@@ -72,53 +84,7 @@ export const useInsertOrder = () => {
             return newProduct;
         },
         async onSuccess() {
-            await queryClient.invalidateQueries({ queryKey: ["products"] });
-        }
-    });
-};
-
-export const useUpdateProduct = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        async mutationFn(data: any) {
-            const { data: updatedProduct, error } = await supabase
-                .from("products")
-                .update({
-                    name: data.name,
-                    image: data.image,
-                    price: data.price
-                })
-                .eq("id", data.id)
-                .select()
-                .single();
-
-            if (error) {
-                throw new Error(error.message);
-            }
-
-            return updatedProduct;
-        },
-        async onSuccess(_, data) {
-            await queryClient.invalidateQueries({ queryKey: ["products"] });
-            await queryClient.invalidateQueries({ queryKey: ["products", data.id] });
-        }
-    });
-};
-
-export const useDeleteProduct = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        async mutationFn(id: number) {
-            const { error } = await supabase.from("products").delete().eq("id", id);
-
-            if (error) {
-                throw new Error(error.message);
-            }
-        },
-        async onSuccess() {
-            await queryClient.invalidateQueries({ queryKey: ["products"] });
+            await queryClient.invalidateQueries({ queryKey: ["orders"] });
         }
     });
 };
