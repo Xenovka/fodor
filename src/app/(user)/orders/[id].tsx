@@ -34,9 +34,8 @@ export default function OrderDetailsScreen() {
                         <Text style={{ fontWeight: "bold" }}>Status</Text>
                         <View style={{ flexDirection: "row", gap: 5 }}>
                             {OrderStatusList.map((status) => (
-                                <Pressable
+                                <View
                                     key={status}
-                                    onPress={() => console.warn("Update status")}
                                     style={{
                                         borderColor: Colors.light.tint,
                                         borderWidth: 1,
@@ -53,7 +52,7 @@ export default function OrderDetailsScreen() {
                                     >
                                         {status}
                                     </Text>
-                                </Pressable>
+                                </View>
                             ))}
                         </View>
                     </>
